@@ -1,14 +1,10 @@
 # Quantum Factoring - Shor's Algorithm
 
-This code breaks numbers into their factors using quantum computing instead of regular math.
-
-## What it does
-
-Takes a number like 15 and finds that 15 = 3 × 5. But instead of guessing and checking like normal computers, it uses quantum weirdness to find the answer "faster".
+This code breaks numbers into their factors using quantum computing.
 
 ## How to use it
 
-Run it. It will factor the number 15 by default. If you want to try a different number, change the `N = 15` line at the bottom.
+Run it. It will factor the number 15 by default.
 
 ## What happens when you run it
 
@@ -27,18 +23,49 @@ Success! Factors: [3, 5]
 Result: 15 = 3 × 5
 ```
 
-## The basic steps
+## How Shor's Algorithm Works
 
-1. Pick a random number
-2. Build a quantum circuit with about 20 qubits
-3. Run quantum math to find a hidden pattern
-4. Use that pattern to get the factors
+### The Classical Approach (Slow)
+Normal computers have to basically guess and check:
+- Try dividing by 2, 3, 5, 7, 11, 13...
+- Keep going until you find a factor
+- For big numbers, this takes forever
 
-## Why this is cool
+### Shor's Quantum Trick (Fast)
+Instead of trying to factor directly, Shor's algorithm does something clever:
 
-- Quantum computers can factor huge numbers way faster than regular computers
-- This algorithm could break internet encryption someday
-- It shows quantum computers can solve certain problems exponentially faster
+#### Step 1: Pick a Random Number
+Choose some number `a` that's smaller than the number `N` you want to factor.
+
+#### Step 2: Find the Period
+This is the quantum magic part. We want to find the "period" of the function f(x) = a^x mod N.
+
+What's a period? It's how often the pattern repeats:
+- 7^1 mod 15 = 7
+- 7^2 mod 15 = 4  
+- 7^3 mod 15 = 13
+- 7^4 mod 15 = 1  ← Back to 1, so period = 4
+- 7^5 mod 15 = 7  ← Pattern starts over
+
+#### Step 3: The Quantum Circuit
+The quantum computer creates a superposition of ALL possible values of x at once, then computes a^x mod N for all of them simultaneously.
+
+The circuit has two parts:
+- **Counting register**: Holds all the x values in superposition
+- **Work register**: Computes a^x mod N for each x
+
+#### Step 4: Quantum Fourier Transform
+This is where the period gets extracted. The QFT finds hidden periodicities in the quantum state.
+
+#### Step 5: Classical Math
+Once we have the period r, we use regular math:
+- Compute x = a^(r/2) mod N
+- Calculate gcd(x-1, N) and gcd(x+1, N)
+- One of these will be a factor of N
+
+### Why It's Faster
+- **Classical**: Try O(√N) possible factors → exponential time
+- **Quantum**: Find period in O(log³ N) time → polynomial time
 
 ## What the output means
 
@@ -49,8 +76,10 @@ Result: 15 = 3 × 5
 
 ## Limitations
 
-Only works on small numbers because we're simulating a quantum computer on a regular computer. Real quantum computers could factor much bigger numbers.
+Only works on small numbers because we're simulating a quantum computer on a regular computer.
 
 ## Requirements
 
-You need Python with cirq and qsimcirq installed. That's Google's quantum computing simulator.
+```bash
+pip install cirq qsimcirq numpy
+```
